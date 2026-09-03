@@ -1,31 +1,163 @@
-html,
-body {
-  background-color: lightblue;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
+/* --------------------
+   CSS Reset
+-------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
 }
 
 body {
-  nav {
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f4f7f6;
+  color: #1f2933;
+  line-height: 1.6;
+}
 
-    li {
-      display: inline;
-      margin-right: 15px;
-    }
+/* --------------------
+   Navigation
+-------------------- */
 
-    a {
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
+nav {
+  background-color: #174f3d;
+  padding: 1rem;
+}
 
-      &:hover {
-        color: #0066cc;
-      }
-    }
+nav ul {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.5rem;
+}
+
+nav a:hover,
+nav a:focus {
+  color: #c9e8dc;
+  text-decoration: underline;
+}
+
+/* --------------------
+   Main Content
+-------------------- */
+
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+
+  background-color: #ffffff;
+  border-radius: 8px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin-top: 0;
+  color: #174f3d;
+  text-align: center;
+}
+
+h2 {
+  color: #256b52;
+}
+
+p {
+  font-size: 1.1rem;
+}
+
+/* --------------------
+   Lists
+-------------------- */
+
+main ul {
+  padding-left: 1.5rem;
+}
+
+main li {
+  margin-bottom: 1rem;
+}
+
+/* --------------------
+   Images
+-------------------- */
+
+.main-logo {
+  display: block;
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+
+  margin: 2rem auto 0;
+}
+
+/* Organization Images */
+
+main li img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  vertical-align: middle;
+
+  margin-right: 1rem;
+}
+
+/* --------------------
+   Footer
+-------------------- */
+
+footer {
+  margin-top: 2rem;
+  padding: 1.5rem;
+
+  background-color: #174f3d;
+  color: #ffffff;
+
+  text-align: center;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* --------------------
+   Mobile Styles
+-------------------- */
+
+@media screen and (max-width: 600px) {
+  nav ul {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  main {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  main li img {
+    width: 50px;
+    height: 50px;
   }
 }
