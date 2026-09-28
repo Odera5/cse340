@@ -1,10 +1,28 @@
+
 <%- include('partials/header') %>
+
 <main>
+
   <h1><%= title %></h1>
+
+  <p>
+    <a href="/new-category">Add New Category</a>
+  </p>
+
   <ul>
+
     <% categories.forEach(category => { %>
-      <li><a href="/categories/<%= category.category_id %>"><%= category.name %></a></li>
+
+      <li>
+        <a href="/categories/<%= category.category_id %>">
+          <%= category.name %>
+        </a>
+      </li>
+
     <% }); %>
+
   </ul>
+
 </main>
+
 <%- include('partials/footer') %>
