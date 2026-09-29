@@ -15,22 +15,26 @@
     <%= organizationDetails.email %>
   </p>
 
-  <img
-    src="/images/<%= organizationDetails.logo_filename %>"
-    alt="<%= organizationDetails.organization_name %> logo"
-  />
+<img
+src="/images/<%= organizationDetails.logo_filename %>"
+alt="<%= organizationDetails.organization_name %> logo"
+
+>
 
   <h2>Service Projects</h2>
 
-  <% projects.forEach(project => { %>
-    <p>
-      <a href="/project/<%= project.project_id %>">
-        <%= project.title %>
-      </a>
-    </p>
-  <% }) %>
-<a href="/edit-organization/<%= organizationDetails.organization_id %>" class="edit-link">Edit Organization</a>
+<% if (projects.length > 0) { %> <ul>
+<% projects.forEach((project) => { %> <li> <a href="/project/<%= project.project_id %>">
+<%= project.title %> </a> </li>
+<% }); %> </ul>
+<% } else { %> <p>No service projects are currently associated with this organization.</p>
+<% } %>
 
+  <p>
+    <a href="/edit-organization/<%= organizationDetails.organization_id %>">
+      Edit Organization
+    </a>
+  </p>
 </main>
 
 <%- include('partials/footer') %>

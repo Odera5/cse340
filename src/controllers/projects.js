@@ -9,8 +9,6 @@ import {
 import { getAllOrganizations } from "../models/organizations.js";
 import { body, validationResult } from "express-validator";
 
-const NUMBER_OF_UPCOMING_PROJECTS = 5; // Adjust this number as needed
-
 // Validation rules for new projects
 const projectValidation = [
   body("title")
@@ -48,9 +46,10 @@ const projectValidation = [
 ];
 
 // Define any controller functions
+
 const showProjectsPage = async (req, res) => {
-  const projects = await getUpcomingProjects(NUMBER_OF_UPCOMING_PROJECTS);
-  const title = "Upcoming Service Projects";
+  const projects = await getAllProjects();
+  const title = "Service Projects";
 
   res.render("projects", { title, projects });
 };

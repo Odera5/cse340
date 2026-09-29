@@ -2,11 +2,19 @@ import db from "./db.js";
 
 const getAllProjects = async () => {
   const query = `
-        SELECT sp.project_id, sp.title, sp.description, sp.date, o.name
-      FROM service_project sp
-      JOIN organizations o
-      ON sp.organization_id = o.organization_id;
-    `;
+    SELECT
+      sp.project_id,
+      sp.title,
+      sp.description,
+      sp.location,
+      sp.date,
+      o.organization_id,
+      o.name AS organization_name
+    FROM service_project sp
+    JOIN organizations o
+    ON sp.organization_id = o.organization_id
+    ORDER BY sp.date;
+  `;
 
   const result = await db.query(query);
 
@@ -75,7 +83,6 @@ const getProjectDetails = async (projectId) => {
 
   const queryParams = [projectId];
   const result = await db.query(query, queryParams);
-  console.log("getProjectDetails result:", result.rows);
   return result.rows;
 };
 
