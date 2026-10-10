@@ -152,6 +152,49 @@ const updateProject = async (
   return result.rows[0].project_id;
 };
 
+
+const getProjectCategoryIds = async (projectId) => {
+  const query = `
+    SELECT category_id
+    FROM project_category
+    WHERE project_id = $1
+    ORDER BY category_id;
+  `;
+
+  const result = await db.query(query, [projectId]);
+  return result.rows.map((row) => row.category_id);
+};
+
+const updateProjectCategories = async (projectId, categoryIds) => {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await client.query(
+      "DELETE FROM project_category WHERE project_id = $1",
+      [projectId],
+    );
+
+    await client.query(
+      `INSERT INTO project_category (project_id, category_id)
+       SELECT $1, selected.category_id
+       FROM UNNEST($2::int[]) AS selected(category_id)`,
+      [projectId, categoryIds],
+    );
+
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  return projectId;
+};
+
+
 export {
   getAllProjects,
   getProjectsByOrganizationId,
@@ -159,4 +202,6 @@ export {
   getProjectDetails,
   createProject,
   updateProject,
+    getProjectCategoryIds,
+  updateProjectCategories,
 };

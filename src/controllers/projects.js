@@ -5,11 +5,16 @@ import {
   getUpcomingProjects,
   getProjectDetails,
   updateProject,
+  getProjectCategoryIds,
+  updateProjectCategories,
 } from "../models/projects.js";
 import { getAllOrganizations } from "../models/organizations.js";
 import { body, validationResult } from "express-validator";
-
+import {
+  getAllCategories,
+} from "../models/categories.js";
 // Validation rules for new projects
+
 const projectValidation = [
   body("title")
     .trim()
@@ -23,26 +28,26 @@ const projectValidation = [
     .notEmpty()
     .withMessage("Description is required")
     .isLength({ max: 1000 })
-    .withMessage("Description must be less than 1000 characters"),
+    .withMessage("Description cannot exceed 1000 characters"),
 
   body("location")
     .trim()
     .notEmpty()
     .withMessage("Location is required")
     .isLength({ max: 200 })
-    .withMessage("Location must be less than 200 characters"),
+    .withMessage("Location cannot exceed 200 characters"),
 
   body("date")
     .notEmpty()
     .withMessage("Date is required")
     .isISO8601()
-    .withMessage("Date must be a valid date format"),
+    .withMessage("Please provide a valid date"),
 
   body("organizationId")
     .notEmpty()
     .withMessage("Organization is required")
-    .isInt()
-    .withMessage("Organization must be a valid integer"),
+    .isInt({ min: 1 })
+    .withMessage("Please select a valid organization"),
 ];
 
 // Define any controller functions
@@ -109,9 +114,21 @@ const showEditProjectForm = async (req, res) => {
     organizations,
   });
 };
+
 const processEditProjectForm = async (req, res) => {
   const projectId = req.params.id;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    errors.array().forEach((error) => {
+      req.flash("error", error.msg);
+    });
+
+    return res.redirect(`/edit-project/${projectId}`);
+  }
+
   const { title, description, location, date, organizationId } = req.body;
+
   try {
     await updateProject(
       projectId,
@@ -121,13 +138,102 @@ const processEditProjectForm = async (req, res) => {
       date,
       organizationId,
     );
+
     req.flash("success", "Project updated successfully!");
-    res.redirect(`/project/${projectId}`);
+    return res.redirect(`/project/${projectId}`);
   } catch (error) {
+    console.error("Error updating project:", error);
     req.flash("error", "Failed to update project.");
-    res.redirect(`/edit-project/${projectId}`);
+    return res.redirect(`/edit-project/${projectId}`);
   }
 };
+
+
+const showAssignCategoriesForm = async (req, res) => {
+  const projectId = Number(req.params.id);
+
+  if (!Number.isInteger(projectId) || projectId < 1) {
+    req.flash("error", "Invalid project ID.");
+    return res.redirect("/projects");
+  }
+
+  try {
+    const projectDetails = await getProjectDetails(projectId);
+
+    if (projectDetails.length === 0) {
+      req.flash("error", "Project not found.");
+      return res.redirect("/projects");
+    }
+
+    const categories = await getAllCategories();
+    const assignedCategoryIds = await getProjectCategoryIds(projectId);
+
+    res.render("assign-categories", {
+      title: "Assign Categories",
+      project: projectDetails[0],
+      categories,
+      assignedCategoryIds,
+    });
+  } catch (error) {
+    console.error("Error loading category assignments:", error);
+    req.flash("error", "Unable to load project categories.");
+    return res.redirect(`/project/${projectId}`);
+  }
+};
+
+const processAssignCategoriesForm = async (req, res) => {
+  const projectId = Number(req.params.id);
+
+  if (!Number.isInteger(projectId) || projectId < 1) {
+    req.flash("error", "Invalid project ID.");
+    return res.redirect("/projects");
+  }
+
+  try {
+    const projectDetails = await getProjectDetails(projectId);
+
+    if (projectDetails.length === 0) {
+      req.flash("error", "Project not found.");
+      return res.redirect("/projects");
+    }
+
+    let categoryIds = req.body.categoryIds ?? [];
+
+    if (!Array.isArray(categoryIds)) {
+      categoryIds = [categoryIds];
+    }
+
+    categoryIds = categoryIds.map(Number);
+
+    if (
+      categoryIds.some((id) => !Number.isInteger(id) || id < 1) ||
+      new Set(categoryIds).size !== categoryIds.length
+    ) {
+      req.flash("error", "One or more selected categories are invalid.");
+      return res.redirect(`/project/${projectId}/categories`);
+    }
+
+    const categories = await getAllCategories();
+    const validCategoryIds = new Set(
+      categories.map((category) => Number(category.category_id)),
+    );
+
+    if (categoryIds.some((id) => !validCategoryIds.has(id))) {
+      req.flash("error", "One or more selected categories do not exist.");
+      return res.redirect(`/project/${projectId}/categories`);
+    }
+
+    await updateProjectCategories(projectId, categoryIds);
+
+    req.flash("success", "Project categories updated successfully!");
+    return res.redirect(`/project/${projectId}`);
+  } catch (error) {
+    console.error("Error updating project categories:", error);
+    req.flash("error", "Failed to update project categories.");
+    return res.redirect(`/project/${projectId}/categories`);
+  }
+};
+
 
 // Export any controller functions
 export {
@@ -138,4 +244,6 @@ export {
   projectValidation,
   showEditProjectForm,
   processEditProjectForm,
+  showAssignCategoriesForm,
+  processAssignCategoriesForm,
 };
