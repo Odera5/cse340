@@ -35,79 +35,172 @@ import {
   categoryValidation,
 } from "./controllers/categories.js";
 
+import {
+  showUserRegistrationForm,
+  processUserRegistrationForm,
+  showLoginForm,
+  processLoginForm,
+  processLogout,
+  requireLogin,
+  requireRole,
+  showDashboard,
+  showUsersPage,
+} from "./controllers/users.js";
+
 import { testErrorPage } from "./controllers/errors.js";
 
 const router = express.Router();
 
+// ==========================================
+// Authentication routes
+// ==========================================
+
+// Registration
+router.get("/register", showUserRegistrationForm);
+router.post("/register", processUserRegistrationForm);
+
+// Login and logout
+router.get("/login", showLoginForm);
+router.post("/login", processLoginForm);
+router.get("/logout", processLogout);
+
+// Dashboard: logged-in users only
+router.get("/dashboard", requireLogin, showDashboard);
+
+// Users list: administrators only
+router.get("/users", requireRole("admin"), showUsersPage);
+
+// ==========================================
 // Home route
+// ==========================================
+
 router.get("/", showHomePage);
 
+// ==========================================
 // Organization routes
+// ==========================================
+
+// Public organization listing and details
 router.get("/organizations", showOrganizationsPage);
 router.get("/organization/:id", showOrganizationDetailsPage);
 
-router.get("/new-organization", showNewOrganizationForm);
+// Create organization: administrators only
+router.get(
+  "/new-organization",
+  requireRole("admin"),
+  showNewOrganizationForm,
+);
+
 router.post(
   "/new-organization",
+  requireRole("admin"),
   organizationValidation,
   processNewOrganizationForm,
 );
 
-router.get("/edit-organization/:id", showEditOrganizationForm);
+// Edit organization: administrators only
+router.get(
+  "/edit-organization/:id",
+  requireRole("admin"),
+  showEditOrganizationForm,
+);
+
 router.post(
   "/edit-organization/:id",
+  requireRole("admin"),
   organizationValidation,
   processEditOrganizationForm,
 );
 
+// ==========================================
 // Project routes
+// ==========================================
+
+// Public project listing and details
 router.get("/projects", showProjectsPage);
 router.get("/project/:id", showProjectDetailsPage);
 
-router.get("/new-project", showNewProjectForm);
+// Create project: administrators only
+router.get(
+  "/new-project",
+  requireRole("admin"),
+  showNewProjectForm,
+);
+
 router.post(
   "/new-project",
+  requireRole("admin"),
   projectValidation,
   processNewProjectForm,
 );
 
-router.get("/edit-project/:id", showEditProjectForm);
+// Edit project: administrators only
+router.get(
+  "/edit-project/:id",
+  requireRole("admin"),
+  showEditProjectForm,
+);
+
 router.post(
   "/edit-project/:id",
+  requireRole("admin"),
   projectValidation,
   processEditProjectForm,
 );
 
-// Project category-assignment routes
+// Assign categories to a project: administrators only
 router.get(
   "/project/:id/categories",
+  requireRole("admin"),
   showAssignCategoriesForm,
 );
 
 router.post(
   "/project/:id/categories",
+  requireRole("admin"),
   processAssignCategoriesForm,
 );
 
+// ==========================================
 // Category routes
+// ==========================================
+
+// Public category listing and details
 router.get("/categories", showCategoriesPage);
 router.get("/categories/:id", showCategoryDetailsPage);
 
-router.get("/new-category", showNewCategoryForm);
+// Create category: administrators only
+router.get(
+  "/new-category",
+  requireRole("admin"),
+  showNewCategoryForm,
+);
+
 router.post(
   "/new-category",
+  requireRole("admin"),
   categoryValidation,
   processNewCategoryForm,
 );
 
-router.get("/edit-category/:id", showEditCategoryForm);
+// Edit category: administrators only
+router.get(
+  "/edit-category/:id",
+  requireRole("admin"),
+  showEditCategoryForm,
+);
+
 router.post(
   "/edit-category/:id",
+  requireRole("admin"),
   categoryValidation,
   processEditCategoryForm,
 );
 
+// ==========================================
 // Error testing route
+// ==========================================
+
 router.get("/test-error", testErrorPage);
 
 export default router;

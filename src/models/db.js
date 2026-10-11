@@ -2,12 +2,17 @@
 import { Pool } from "pg";
 
 // Create a PostgreSQL connection pool.
-const pool = new Pool({
+const poolConfig = {
   connectionString: process.env.DB_URL,
-  ssl: {
+};
+
+if (process.env.DB_SSL === "true") {
+  poolConfig.ssl = {
     rejectUnauthorized: false,
-  },
-});
+  };
+}
+
+const pool = new Pool(poolConfig);
 
 // Export a wrapped pool in development mode for SQL logging.
 // In other environments, export the pool directly.

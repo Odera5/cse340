@@ -125,3 +125,17 @@ VALUES
 (15, 5),
 (15, 2);
 
+CREATE TABLE roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(20) NOT NULL UNIQUE
+);
+INSERT INTO roles (role_name)
+VALUES ('admin'), ('user');
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id INTEGER NOT NULL DEFAULT 2 REFERENCES roles(role_id)
+);

@@ -1,0 +1,27 @@
+
+<%- include("partials/header") %>
+
+<main>
+  <h1>Dashboard</h1>
+
+  <p>Welcome, <%= user.name %>!</p>
+
+  <p>Your role: <strong><%= user.role_name %></strong></p>
+
+  <% if (user.role_name === "admin") { %>
+    <section>
+      <h2>Administration</h2>
+      <p>Manage registered users and the Service Network.</p>
+      <p><a href="/users">View Registered Users</a></p>
+      <p><a href="/new-organization">Create an Organization</a></p>
+      <p><a href="/new-project">Create a Project</a></p>
+      <p><a href="/new-category">Create a Category</a></p>
+    </section>
+  <% } else { %>
+    <p>You are logged in as a regular user.</p>
+  <% } %>
+
+  <p><a href="/logout">Log Out</a></p>
+</main>
+
+<%- include("partials/footer") %>
