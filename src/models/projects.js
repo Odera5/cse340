@@ -152,7 +152,6 @@ const updateProject = async (
   return result.rows[0].project_id;
 };
 
-
 const getProjectCategoryIds = async (projectId) => {
   const query = `
     SELECT category_id
@@ -171,10 +170,9 @@ const updateProjectCategories = async (projectId, categoryIds) => {
   try {
     await client.query("BEGIN");
 
-    await client.query(
-      "DELETE FROM project_category WHERE project_id = $1",
-      [projectId],
-    );
+    await client.query("DELETE FROM project_category WHERE project_id = $1", [
+      projectId,
+    ]);
 
     await client.query(
       `INSERT INTO project_category (project_id, category_id)
@@ -194,6 +192,50 @@ const updateProjectCategories = async (projectId, categoryIds) => {
   return projectId;
 };
 
+const addVolunteer = async (userId, projectId) => {
+  const query = `
+    INSERT INTO project_volunteers (user_id, project_id)
+    VALUES ($1, $2)
+    ON CONFLICT (user_id, project_id) DO NOTHING
+    RETURNING user_id;
+  `;
+
+  const result = await db.query(query, [userId, projectId]);
+  return result.rowCount > 0;
+};
+
+const removeVolunteer = async (userId, projectId) => {
+  const query = `
+    DELETE FROM project_volunteers
+    WHERE user_id = $1 AND project_id = $2
+    RETURNING user_id;
+  `;
+
+  const result = await db.query(query, [userId, projectId]);
+  return result.rowCount > 0;
+};
+
+const getVolunteerProjectsByUserId = async (userId) => {
+  const query = `
+    SELECT
+      sp.project_id,
+      sp.title,
+      sp.description,
+      sp.location,
+      sp.date,
+      o.name AS organization_name
+    FROM project_volunteers pv
+    JOIN service_project sp
+      ON pv.project_id = sp.project_id
+    JOIN organizations o
+      ON sp.organization_id = o.organization_id
+    WHERE pv.user_id = $1
+    ORDER BY sp.date;
+  `;
+
+  const result = await db.query(query, [userId]);
+  return result.rows;
+};
 
 export {
   getAllProjects,
@@ -202,6 +244,9 @@ export {
   getProjectDetails,
   createProject,
   updateProject,
-    getProjectCategoryIds,
+  getProjectCategoryIds,
   updateProjectCategories,
+  addVolunteer,
+  removeVolunteer,
+  getVolunteerProjectsByUserId,
 };

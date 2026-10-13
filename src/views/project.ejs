@@ -4,64 +4,108 @@
 <main>
   <h1><%= title %></h1>
 
-  <h2><%= projectDetails[0].title %></h2>
+  <% if (projectDetails && projectDetails.length > 0) { %>
+    <% const project = projectDetails[0]; %>
 
-  <p>
-    <strong>Description:</strong>
-    <%= projectDetails[0].description %>
-  </p>
+    <section>
+      <h2><%= project.title %></h2>
 
-  <p>
-    <strong>Location:</strong>
-    <%= projectDetails[0].location %>
-  </p>
+      <p>
+        <strong>Description:</strong>
+        <%= project.description %>
+      </p>
 
-  <p>
-    <strong>Date:</strong>
-    <%= projectDetails[0].date %>
-  </p>
+      <p>
+        <strong>Location:</strong>
+        <%= project.location %>
+      </p>
 
-  <p>
-    <strong>Organization:</strong>
-    <a href="/organization/<%= projectDetails[0].organization_id %>">
-      <%= projectDetails[0].organization_name %>
-    </a>
-  </p>
+      <p>
+        <strong>Date:</strong>
+        <%= project.date %>
+      </p>
 
-  <p>
-    <strong>Categories:</strong>
-  </p>
+      <p>
+        <strong>Organization:</strong>
+        <a href="/organization/<%= project.organization_id %>">
+          <%= project.organization_name %>
+        </a>
+      </p>
+    </section>
 
-  <ul>
-    <% let hasCategories = false; %>
+    <section>
+      <h2>Project Categories</h2>
 
-    <% projectDetails.forEach((category) => { %>
-      <% if (category.category_id) { %>
-        <% hasCategories = true; %>
-        <li>
-          <a href="/categories/<%= category.category_id %>">
-            <%= category.category_name %>
-          </a>
-        </li>
+      <ul>
+        <% let hasCategories = false; %>
+
+        <% projectDetails.forEach((category) => { %>
+          <% if (category.category_id) { %>
+            <% hasCategories = true; %>
+
+            <li>
+              <a href="/categories/<%= category.category_id %>">
+                <%= category.category_name %>
+              </a>
+            </li>
+          <% } %>
+        <% }); %>
+
+        <% if (!hasCategories) { %>
+          <li>No categories assigned to this project.</li>
+        <% } %>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Volunteer for This Project</h2>
+
+      <% if (!user) { %>
+        <p>
+          Please <a href="/login">log in</a> to sign up as a volunteer.
+        </p>
+      <% } else if (isVolunteer) { %>
+        <p>You are registered as a volunteer for this project.</p>
+
+        <form
+          action="/project/<%= project.project_id %>/cancel-volunteer"
+          method="POST"
+        >
+          <button type="submit">Cancel Volunteer Signup</button>
+        </form>
+      <% } else { %>
+        <p>Interested in helping with this project? Sign up below.</p>
+
+        <form
+          action="/project/<%= project.project_id %>/volunteer"
+          method="POST"
+        >
+          <button type="submit">Sign Up to Volunteer</button>
+        </form>
       <% } %>
-    <% }); %>
+    </section>
 
-    <% if (!hasCategories) { %>
-      <li>No categories assigned to this project.</li>
+    <% if (user && user.role_name === "admin") { %>
+      <section>
+        <h2>Project Administration</h2>
+
+        <p>
+          <a href="/edit-project/<%= project.project_id %>">
+            Edit Project
+          </a>
+        </p>
+
+        <p>
+          <a href="/project/<%= project.project_id %>/categories">
+            Assign Categories
+          </a>
+        </p>
+      </section>
     <% } %>
-  </ul>
-
-  <p>
-    <a href="/edit-project/<%= projectDetails[0].project_id %>">
-      Edit Project
-    </a>
-  </p>
-
-  <p>
-    <a href="/project/<%= projectDetails[0].project_id %>/categories">
-      Assign Categories
-    </a>
-  </p>
+  <% } else { %>
+    <p>Project details are unavailable.</p>
+    <p><a href="/projects">Back to Projects</a></p>
+  <% } %>
 </main>
 
 <%- include('partials/footer') %>

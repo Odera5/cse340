@@ -1,4 +1,3 @@
-
 import bcrypt from "bcrypt";
 
 import {
@@ -7,6 +6,8 @@ import {
   authenticateUser,
   getAllUsers,
 } from "../models/users.js";
+
+import { getVolunteerProjectsByUserId } from "../models/projects.js";
 
 // Display the registration form.
 const showUserRegistrationForm = (req, res) => {
@@ -31,7 +32,7 @@ const processUserRegistrationForm = async (req, res) => {
     }
 
     if (password.length < 7) {
-      req.flash("error", "Password must be at least 8 characters.");
+      req.flash("error", "Password must be at least 7 characters.");
       return res.redirect("/register");
     }
 
@@ -147,12 +148,22 @@ const requireRole = (requiredRole) => {
   };
 };
 
-// Display the authenticated user's dashboard.
-const showDashboard = (req, res) => {
-  res.render("dashboard", {
-    title: "Dashboard",
-    user: req.session.user,
-  });
+// Display the authenticated user's dashboard and volunteer projects.
+const showDashboard = async (req, res, next) => {
+  try {
+    const volunteerProjects = await getVolunteerProjectsByUserId(
+      req.session.user.user_id,
+    );
+
+    res.render("dashboard", {
+      title: "Dashboard",
+      user: req.session.user,
+      volunteerProjects,
+    });
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    return next(error);
+  }
 };
 
 // Display all registered users. The route must be admin-protected.

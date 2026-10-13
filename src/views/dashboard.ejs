@@ -1,16 +1,18 @@
-
-<%- include("partials/header") %>
+ <%- include("partials/header") %>
 
 <main>
   <h1>Dashboard</h1>
 
   <p>Welcome, <%= user.name %>!</p>
 
-  <p>Your role: <strong><%= user.role_name %></strong></p>
+  <p>
+    Your role: <strong><%= user.role_name %></strong>
+  </p>
 
   <% if (user.role_name === "admin") { %>
     <section>
       <h2>Administration</h2>
+
       <p>Manage registered users and the Service Network.</p>
       <p><a href="/users">View Registered Users</a></p>
       <p><a href="/new-organization">Create an Organization</a></p>
@@ -20,6 +22,60 @@
   <% } else { %>
     <p>You are logged in as a regular user.</p>
   <% } %>
+
+  <section>
+    <h2>My Volunteer Projects</h2>
+
+    <% if (volunteerProjects && volunteerProjects.length > 0) { %>
+      <ul>
+        <% volunteerProjects.forEach((project) => { %>
+          <li>
+            <h3>
+              <a href="/project/<%= project.project_id %>">
+                <%= project.title %>
+              </a>
+            </h3>
+
+            <p>
+              <strong>Description:</strong>
+              <%= project.description %>
+            </p>
+
+            <p>
+              <strong>Location:</strong>
+              <%= project.location %>
+            </p>
+
+            <p>
+              <strong>Date:</strong>
+              <%= project.date %>
+            </p>
+
+            <p>
+              <strong>Organization:</strong>
+              <%= project.organization_name %>
+            </p>
+
+            <p>
+              <a href="/project/<%= project.project_id %>">
+                View Project
+              </a>
+            </p>
+
+            <form
+              action="/project/<%= project.project_id %>/cancel-volunteer"
+              method="POST"
+            >
+              <button type="submit">Remove Me as Volunteer</button>
+            </form>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>You have not signed up to volunteer for any projects yet.</p>
+      <p><a href="/projects">Browse Available Projects</a></p>
+    <% } %>
+  </section>
 
   <p><a href="/logout">Log Out</a></p>
 </main>

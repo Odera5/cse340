@@ -1,4 +1,3 @@
-
 import express from "express";
 
 import { showHomePage } from "./controllers/index.js";
@@ -23,6 +22,8 @@ import {
   processEditProjectForm,
   showAssignCategoriesForm,
   processAssignCategoriesForm,
+  processVolunteerSignup,
+  processVolunteerCancellation,
 } from "./controllers/projects.js";
 
 import {
@@ -85,11 +86,7 @@ router.get("/organizations", showOrganizationsPage);
 router.get("/organization/:id", showOrganizationDetailsPage);
 
 // Create organization: administrators only
-router.get(
-  "/new-organization",
-  requireRole("admin"),
-  showNewOrganizationForm,
-);
+router.get("/new-organization", requireRole("admin"), showNewOrganizationForm);
 
 router.post(
   "/new-organization",
@@ -121,11 +118,7 @@ router.get("/projects", showProjectsPage);
 router.get("/project/:id", showProjectDetailsPage);
 
 // Create project: administrators only
-router.get(
-  "/new-project",
-  requireRole("admin"),
-  showNewProjectForm,
-);
+router.get("/new-project", requireRole("admin"), showNewProjectForm);
 
 router.post(
   "/new-project",
@@ -135,11 +128,7 @@ router.post(
 );
 
 // Edit project: administrators only
-router.get(
-  "/edit-project/:id",
-  requireRole("admin"),
-  showEditProjectForm,
-);
+router.get("/edit-project/:id", requireRole("admin"), showEditProjectForm);
 
 router.post(
   "/edit-project/:id",
@@ -170,11 +159,7 @@ router.get("/categories", showCategoriesPage);
 router.get("/categories/:id", showCategoryDetailsPage);
 
 // Create category: administrators only
-router.get(
-  "/new-category",
-  requireRole("admin"),
-  showNewCategoryForm,
-);
+router.get("/new-category", requireRole("admin"), showNewCategoryForm);
 
 router.post(
   "/new-category",
@@ -183,12 +168,16 @@ router.post(
   processNewCategoryForm,
 );
 
-// Edit category: administrators only
-router.get(
-  "/edit-category/:id",
-  requireRole("admin"),
-  showEditCategoryForm,
+router.post("/project/:id/volunteer", requireLogin, processVolunteerSignup);
+
+router.post(
+  "/project/:id/cancel-volunteer",
+  requireLogin,
+  processVolunteerCancellation,
 );
+
+// Edit category: administrators only
+router.get("/edit-category/:id", requireRole("admin"), showEditCategoryForm);
 
 router.post(
   "/edit-category/:id",
